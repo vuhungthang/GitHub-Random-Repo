@@ -1,0 +1,20 @@
+h1 {
+    justify-content: center;
+    text-align: center;
+    margin-bottom: 20px;
+}
+.container {
+    text-align: center;
+    margin-bottom: 15px;
+}
+
+#loading {
+    text-align: center;
+}
+
+.resultContainer {
+    display: none;
+    justify-content: left;
+    text-align: center;
+    border: 1px solid transparent;
+}

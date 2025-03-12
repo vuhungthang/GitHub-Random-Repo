@@ -3,6 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="styles.css">
     <title>Github Random Repo</title>
 </head>
 <body>
@@ -44,44 +45,54 @@
 }
 
     async function fetchResult(language) {
-        try {
-            loadingSection = document.getElementById("loading")
-            // loadingSection.style.display = "block";
-            loadingSection.textContent = "Loading...";
-            const resultContainer = document.getElementsByClassName("resultContainer")[0];
+    try {
+        const loadingSection = document.getElementById("loading");
+        const resultContainer = document.querySelector(".resultContainer");
 
-            if (resultContainer.innerHTML!= "") {
-             resultContainer.innerHTML = ""
-            }
+        // Hide the result container and remove border while loading
+        resultContainer.style.display = "none";
+        resultContainer.style.border = "1px solid transparent"; 
 
-            const response = await fetch(`https://api.github.com/search/repositories?q=${language}`);
-            const data = await response.json();
+        loadingSection.textContent = "Loading...";
+        resultContainer.innerHTML = ""; // Clear previous results
 
-            loadingSection.style.display = "none";
+        const response = await fetch(`https://api.github.com/search/repositories?q=${language}`);
+        const data = await response.json();
 
-            const responseResult = await fetch(data.items[0].url)
-            const dataResult = await responseResult.json()
-    
-            
-            const title = document.createElement("h3")
-            title.textContent = dataResult.full_name;
-            resultContainer.appendChild(title)
-
-            const link = document.createElement("a")
-            link.href = dataResult.html_url
-            link.textContent = dataResult.html_url
-            resultContainer.appendChild(link)
-
-            const description = document.createElement("p")
-            description.textContent = dataResult.description
-            resultContainer.appendChild(description)
-        } catch(error) {
-            console.log(error);
-            loadingSection = document.getElementById("loading")
-            loadingSection.innerHTML = "Error"
-
+        if (!data.items || data.items.length === 0) {
+            loadingSection.textContent = "No repositories found";
+            return;
         }
+
+        loadingSection.style.display = "none"; // Hide loading message
+
+        const responseResult = await fetch(data.items[0].url);
+        const dataResult = await responseResult.json();
+
+        const title = document.createElement("h3");
+        title.textContent = dataResult.full_name;
+        resultContainer.appendChild(title);
+
+        const link = document.createElement("a");
+        link.href = dataResult.html_url;
+        link.textContent = dataResult.html_url;
+        link.target = "_blank";
+        resultContainer.appendChild(link);
+
+        const description = document.createElement("p");
+        description.textContent = dataResult.description || "No description available.";
+        resultContainer.appendChild(description);
+
+        // Show result container and add border after data loads
+        resultContainer.style.display = "block";
+        resultContainer.style.border = "1px solid #ddd"; 
+
+    } catch (error) {
+        console.log(error);
+        loadingSection.textContent = "Error fetching data.";
     }
+}
+
 
     form.addEventListener("submit", function(event){
         event.preventDefault();
