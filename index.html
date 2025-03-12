@@ -18,7 +18,7 @@
         </form>
     </div>
 
-    <div id="loading" style="display: none;">Loading...</div>
+    <div id="loading">Please select a language</div>
 
     <div class="resultContainer">
     </div>
@@ -44,39 +44,43 @@
 }
 
     async function fetchResult(language) {
-        loadingSection = document.getElementById("loading")
-        loadingSection.style.display = "block";
-        loadingSection.textContent = "Loading...";
-        const resultContainer = document.getElementsByClassName("resultContainer")[0];
+        try {
+            loadingSection = document.getElementById("loading")
+            // loadingSection.style.display = "block";
+            loadingSection.textContent = "Loading...";
+            const resultContainer = document.getElementsByClassName("resultContainer")[0];
 
-        if (resultContainer.innerHTML!= "") {
-            resultContainer.innerHTML = ""
+            if (resultContainer.innerHTML!= "") {
+             resultContainer.innerHTML = ""
+            }
+
+            const response = await fetch(`https://api.github.com/search/repositories?q=${language}`);
+            const data = await response.json();
+
+            loadingSection.style.display = "none";
+
+            const responseResult = await fetch(data.items[0].url)
+            const dataResult = await responseResult.json()
+    
+            
+            const title = document.createElement("h3")
+            title.textContent = dataResult.full_name;
+            resultContainer.appendChild(title)
+
+            const link = document.createElement("a")
+            link.href = dataResult.html_url
+            link.textContent = dataResult.html_url
+            resultContainer.appendChild(link)
+
+            const description = document.createElement("p")
+            description.textContent = dataResult.description
+            resultContainer.appendChild(description)
+        } catch(error) {
+            console.log(error);
+            loadingSection = document.getElementById("loading")
+            loadingSection.innerHTML = "Error"
+
         }
-
-        
-
-        const response = await fetch(`https://api.github.com/search/repositories?q=${language}`);
-        const data = await response.json();
-
-        loadingSection.style.display = "none";
-
-        const responseResult = await fetch(data.items[0].url)
-        const dataResult = await responseResult.json()
- 
-        
-        const title = document.createElement("h3")
-        title.textContent = dataResult.full_name;
-        resultContainer.appendChild(title)
-
-        const link = document.createElement("a")
-        link.href = dataResult.html_url
-        link.textContent = dataResult.html_url
-        resultContainer.appendChild(link)
-
-        const description = document.createElement("p")
-        description.textContent = dataResult.description
-        resultContainer.appendChild(description)
-
     }
 
     form.addEventListener("submit", function(event){
